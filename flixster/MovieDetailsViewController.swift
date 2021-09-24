@@ -12,14 +12,13 @@ class MovieDetailsViewController: UIViewController {
     @IBOutlet weak var posterView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var synopsisLabel: UILabel!
-    
     var movie: [String:Any]!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        //print(movie["title"])
+        //print(movie)
         titleLabel.text = movie["title"] as? String
         titleLabel.sizeToFit()
         
@@ -36,16 +35,19 @@ class MovieDetailsViewController: UIViewController {
         let backdropUrl = URL(string: "https://image.tmdb.org/t/p/w780" + backdropPath)
         backdropView.af.setImage(withURL: backdropUrl!)
     }
-    
+    @IBAction func tapped(_ sender: UITapGestureRecognizer) {
+    }
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
+        let videoViewController = segue.destination as! ShowVideoViewController
+        videoViewController.id = String(movie["id"] as! Int)
     }
-    */
+    
 
 }

@@ -13,8 +13,8 @@ Flix is an app that allows users to browse movies from the [The Movie Database A
 - [x] (5pts) User can tap a tab bar button to view a grid layout of Movie Posters using a CollectionView.
 
 #### BONUS
-- [ ] (2pts) User can tap a poster in the collection view to see a detail screen of that movie.
-- [ ] (2pts) In the detail view, when the user taps the poster, a new screen is presented modally where they can view the trailer.
+- [x] (2pts) User can tap a poster in the collection view to see a detail screen of that movie.
+- [x] (2pts) In the detail view, when the user taps the poster, a new screen is presented modally where they can view the trailer.
 
 ### App Walkthrough GIF
 
@@ -38,7 +38,7 @@ Describe any challenges encountered while building the app.
 
 ### App Walkthrough GIF
 
-<img src="ezgif.com-gif-maker 9.14.29 AM.gif" width=800><br>
+<img src="ezgif.com-gif-maker.gif" width=800><br>
 
 ### Notes
 - AlamofireImage installation was a little tricky, but I got through it.
