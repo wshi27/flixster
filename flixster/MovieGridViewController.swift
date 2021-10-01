@@ -8,40 +8,56 @@
 import UIKit
 import AlamofireImage
 
-class MovieGridViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+class MovieGridViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UISearchBarDelegate {
+    
     @IBOutlet weak var collectionView: UICollectionView!
-    
-    
+    @IBOutlet weak var searchBar: UISearchBar!
     var movies = [[String:Any]]()
-
+    var keyword: String!
+    var currPage: Int!
+    public var totalPages: Int!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        searchBar.delegate = self
+        setCollectionViewLayout()
+        getInitialMovies()
+
+    }
+    
+    func setCollectionViewLayout(){
         let layout = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
-        
         layout.minimumLineSpacing = 4
         layout.minimumInteritemSpacing = 4
-        
         let width = (view.frame.size.width - layout.minimumInteritemSpacing * 2)/3
         layout.itemSize = CGSize(width: width, height: width*3/2)
-        
-        let url = URL(string: "https://api.themoviedb.org/3/movie/297762/similar?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed")!
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
-        let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
-        let task = session.dataTask(with: request) { (data, response, error) in
-             // This will run when the network request returns
-             if let error = error {
-                    print(error.localizedDescription)
-             } else if let data = data {
-                    let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
-                self.movies = dataDictionary["results"] as! [[String:Any]]
-                self.collectionView.reloadData()
-             }
+    }
+    
+    func getInitialMovies(){
+        MoviesAPICAller.client.getNowPlaying() {(movies) in
+            guard let movies = movies else{
+                return
+            }
+            self.movies = movies;
+            self.collectionView.reloadData()
         }
-        task.resume()
+    }
+    
+    func loadMoreResults(){
+        currPage += 1
+        
+        MoviesAPICAller.client.searchMovies(keyword: keyword, page: currPage) {(dataDictionary) in
+            guard let dataDictionary = dataDictionary else{
+                return
+            }
+            let additionalMovies = dataDictionary["results"] as! [[String:Any]]
+            self.movies.append(contentsOf: additionalMovies)
+            //print("movies count = \(self.movies.count)")
+            self.collectionView.reloadData()
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -53,12 +69,32 @@ class MovieGridViewController: UIViewController, UICollectionViewDataSource, UIC
         let movie = movies[indexPath.item]
         
         let baseUrl = "https://image.tmdb.org/t/p/w185"
-        let posterPath = movie["poster_path"] as! String
+        guard let posterPath = movie["poster_path"] as? String else { return cell}
         let posterUrl = URL(string: baseUrl + posterPath)
         
         cell.posterView.af.setImage(withURL: posterUrl!)
 
         return cell
+    }
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if indexPath.item + 2 == movies.count && totalPages > currPage {
+            loadMoreResults()
+        }
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        currPage = 1;
+        if(searchBar.text != ""){
+            self.keyword = searchBar.text!
+            MoviesAPICAller.client.searchMovies(keyword: keyword, page: currPage) {(dataDictionary) in
+                guard let dataDictionary = dataDictionary  else{
+                    return
+                }
+                self.movies = dataDictionary["results"] as! [[String:Any]];
+                self.totalPages = dataDictionary["total_pages"] as? Int
+                self.collectionView.reloadData()
+            }
+        }
     }
     
     // MARK: - Navigation

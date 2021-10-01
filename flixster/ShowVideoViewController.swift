@@ -12,42 +12,32 @@ class ShowVideoViewController: UIViewController, WKUIDelegate {
 
     var webView: WKWebView!
     var id: String!
-    var video = [[String: Any]]()
-    override func loadView() {
-        let webConfiguration = WKWebViewConfiguration()
-        webView = WKWebView(frame: .zero, configuration: webConfiguration)
-        webView.uiDelegate = self
-        view = webView
-    }
+    var key: String!
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
         
-        let url = URL(string: "https://api.themoviedb.org/3/movie/" + id + "/videos?api_key=e20b71915f2d062863f1830ec2e92b43&language=en-US")!
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
-        let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
-        let task = session.dataTask(with: request){(data, response, error) in
-            // This will run when the network request returns
-            if let error = error{
-                print(error.localizedDescription)
-                
-            }else if let data = data {
-                let videoDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
-          
-                self.video = videoDictionary["results"] as! [[String:Any]]
-
-                let key = self.video[1]["key"] as!String
-                let videoURL = URL(string: "https://www.youtube.com/watch?v=" + key)
-                let videoRequest = URLRequest(url: videoURL!)
-       
-                self.webView.load(videoRequest)
+        webView = WKWebView(frame: CGRect(x: 0, y: 90, width: self.view.frame.width, height: self.view.frame.height-90))
+        self.view.addSubview(webView)
+        
+        loadVideo()
+    }
+    
+    func loadVideo(){
+        MoviesAPICAller.client.getVideos(id: id){(key) in
+            guard let key = key else{
+                return
             }
+            self.key = key;
+            let videoURL = URL(string: "https://www.youtube.com/watch?v=" + key)
+            let videoRequest = URLRequest(url: videoURL!)
+            self.webView.load(videoRequest)
         }
-        task.resume()
-
     }
 
+    @IBAction func dismissWebView(_ sender: UIBarButtonItem) {
+        dismiss(animated: true, completion: nil)
+    }
     /*
     // MARK: - Navigation
 

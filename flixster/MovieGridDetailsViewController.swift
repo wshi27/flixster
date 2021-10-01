@@ -20,18 +20,19 @@ class MovieGridDetailsViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        print(movie)
         movieNameLabel.text = movie["title"] as? String
         sypnosisLabel.text = movie["overview"] as? String
         let baseUrl = "https://image.tmdb.org/t/p/w185"
         
-        let posterPath = movie["poster_path"] as! String
-        let posterUrl = URL(string: baseUrl + posterPath)
-        posterImage.af.setImage(withURL: posterUrl!)
+        if let posterPath = movie["poster_path"] as? String {
+            let posterUrl = URL(string: baseUrl + posterPath)
+            posterImage.af.setImage(withURL: posterUrl!)
+        }
         
-        let backdropPath = movie["backdrop_path"] as! String
-        let backdropUrl = URL(string: "https://image.tmdb.org/t/p/w780" + backdropPath)
-        backDropImage.af.setImage(withURL: backdropUrl!)
+        if let backdropPath = movie["backdrop_path"] as? String{
+            let backdropUrl = URL(string: "https://image.tmdb.org/t/p/w780" + backdropPath)
+            backDropImage.af.setImage(withURL: backdropUrl!)
+        }
     }
     
 
